@@ -785,7 +785,7 @@ static bool update_status(const char *message) {
   }
 
   if (message) {
-    fprintf(prop, "%s%s · [%s]%s", pre_section, base_description, message, post_section);
+    fprintf(prop, "%s%s · [%s]\n%s", pre_section, base_description, message, post_section);
     fclose(prop);
     return true;
   }
@@ -798,7 +798,7 @@ static bool update_status(const char *message) {
     case EXITING: strcat(status_text, "❌"); break;
   }
   WRITE_STATUS_ABI(64)
-  fprintf(prop, "%s%s · %s%s", pre_section, base_description, status_text, post_section);
+  fprintf(prop, "%s%s · %s\n%s", pre_section, base_description, status_text, post_section);
   fclose(prop);
 
   if (environment_information64.root_impl) {
