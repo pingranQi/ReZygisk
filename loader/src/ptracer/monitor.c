@@ -777,13 +777,41 @@ static char post_section[1024];
     }                                                                                \
   }
 
+static void write_module_name(FILE *prop, const char *module_id) {
+  char module_prop_path[PATH_MAX];
+  int path_len = snprintf(module_prop_path, sizeof(module_prop_path),
+                          "/data/adb/modules/%s/module.prop", module_id);
+  if (path_len >= 0 && (size_t)path_len < sizeof(module_prop_path)) {
+    FILE *module_prop = fopen(module_prop_path, "r");
+    if (module_prop != NULL) {
+      char line[1024];
+      while (fgets(line, sizeof(line), module_prop) != NULL) {
+        if (strncmp(line, "name=", sizeof("name=") - 1) != 0) continue;
+
+        char *name = line + sizeof("name=") - 1;
+        name[strcspn(name, "\r\n")] = '\0';
+        if (name[0] != '\0') {
+          fputs(name, prop);
+          fclose(module_prop);
+          return;
+        }
+        break;
+      }
+      fclose(module_prop);
+    }
+  }
+
+  /* Keep the module visible even if its metadata is missing or unreadable. */
+  fputs(module_id, prop);
+}
+
 static void write_module_description(FILE *prop, const char *status_text) {
-  fprintf(prop, "%s[%s]·[models:", pre_section, status_text);
+  fprintf(prop, "%s[%s]·[modules:", pre_section, status_text);
 
   if (environment_information64.modules && environment_information64.modules_len > 0) {
     for (uint32_t i = 0; i < environment_information64.modules_len; i++) {
-      if (i > 0) fputc(',', prop);
-      fputs(environment_information64.modules[i], prop);
+      if (i > 0) fputs(", ", prop);
+      write_module_name(prop, environment_information64.modules[i]);
     }
   } else {
     fputs("none", prop);
