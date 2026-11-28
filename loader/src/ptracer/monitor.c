@@ -789,7 +789,7 @@ static void write_module_description(FILE *prop, const char *status_text) {
     fputs("none", prop);
   }
 
-  fprintf(prop, "]%s\\n%s", base_description, post_section);
+  fprintf(prop, "]%s%s\n%s", base_description, post_section);
 }
 
 static bool update_status(const char *message) {
