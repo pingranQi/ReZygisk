@@ -41,11 +41,16 @@ if pidof zygisk-ptrace64 >/dev/null 2>&1; then
 else
   monitor_status="❌"
 fi
+if pidof zygiskd64 >/dev/null 2>&1; then
+  daemon_status="✅"
+else
+  daemon_status="❌"
+fi
 
 base_prop="$MODDIR/module.prop.bak"
 [ -f "$base_prop" ] || base_prop="$MODDIR/module.prop"
 base_description=$(sed -n 's/^description=//p' "$base_prop" | head -n 1)
-description="[Monitor: $monitor_status, ReZygisk 64-bit: $monitor_status] Modules: $modules · $base_description"
+description="[Monitor: $monitor_status, ReZygisk 64-bit: $daemon_status] Modules: $modules · $base_description"
 
 awk -v description="$description" '
   /^description=/ { print "description=" description; next }

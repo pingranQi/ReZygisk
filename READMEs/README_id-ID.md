@@ -59,7 +59,7 @@ Setelah reboot, Anda dapat memverifikasi apakah ReZygisk bekerja dengan baik den
 Saat ini ada dua cara untuk berkontribusi dalam terjemahan untuk ReZygisk:
 
 - Untuk terjemahan README, Anda dapat membuat file baru di folder `READMEs`, mengikuti konvensi penamaan `README_<bahasa>.md`, di mana `<bahasa>` adalah kode bahasa (misalnya, `README_id-ID.md` untuk Bahasa Indonesia), dan membuka pull request ke `main` branch.
-- Untuk terjemahan WebUI ReZygisk, Anda harus berkontribusi terlebih dahulu di [Crowdin](https://crowdin.com/project/rezygisk). Setelah disetujui, ambil file `.json` dari sana dan buka pull request dengan perubahan Anda -- tambahkan file `.json` ke folder `webroot/lang` dan kredit Anda ke file TRANSLATOR.md, dalam urutan alfabet.
+
 
 ## Dukungan
 

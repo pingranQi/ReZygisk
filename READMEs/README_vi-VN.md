@@ -53,7 +53,6 @@ Sau khi flash, kiểm tra lại nhật ký lỗi để chắc chắn rằng khô
 
 Sau khi khởi động lại, bạn có thể xác minh ReZygisk có hoạt động bình thường không bằng cách kiểm tra mô tả module trong phần `Modules` của trình quản lý gốc. Mô tả sẽ chỉ ra rằng các daemon cần thiết đang chạy. Ví dụ, nếu môi trường của bạn hỗ trợ cả cấu trúctrúc 64-bit và 32-bit, nó sẽ trông giống như thế này: `[Monitor: ✅, ReZygisk 64-bit: ✅, ReZygisk 32-bit: ✅] Standalone implementation of Zygisk.`
 
-## Dịch WebUI cho mô-đun
 
 Hiện tại có hai cách khác nhau để đóng góp bản dịch cho ReZygisk:
 

@@ -58,7 +58,7 @@ Después de reiniciar, podés verificar si ReZygisk está funcionando bien revis
 Actualmente hay dos maneras diferentes de aportar con traducciones para ReZygisk:
 
 - Para traducir el README, podés crear un archivo nuevo en la carpeta `READMEs`, siguiendo el formato de nombre `README_<idioma>.md`, donde `<idioma>` es el código del idioma (por ejemplo, `README_es-AR.md` para Español de Argentina), y abrir un pull request a la rama `main` con tus cambios.
-- Para traducir la WebUI de ReZygisk, primero deberías aportar a nuestro [Crowdin](https://crowdin.com/project/rezygisk). Una vez aprobado, bajate el archivo `.json` de ahí y abrí un pull request con tus cambios (agregando el archivo `.json` a la carpeta `webroot/lang` y tus créditos al archivo `TRANSLATOR.md`, en orden alfabético).
+
 
 ## Soporte
 
