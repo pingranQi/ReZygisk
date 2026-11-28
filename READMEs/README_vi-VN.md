@@ -49,13 +49,9 @@ Sau khi flash, kiểm tra lại nhật ký lỗi để chắc chắn rằng khô
 > [!WARNING]
 > Người dùng Magisk cần phải tắt `built-in Zygisk`, bởi nó sẽ xung đột với ReZygisk. Điều này có thể thực hiện bằng cách vào `Cài Đặt` và tắt tùy chọn `Zygisk`
 
-### 3. Verify the installation
+### 3. Phạm vi hỗ trợ
 
-
-
-Hiện tại có hai cách khác nhau để đóng góp bản dịch cho ReZygisk:
-
-- Đối với bản dịch của README, bạn có thể tạo một tệp mới trong thư mục `READMEs`, theo quy ước đặt tên `README_<language>.md`, trong đó `<language>` là mã ngôn ngữ (ví dụ: `README_pt-BR.md` cho tiếng Bồ Đào Nha Brazil) và mở yêu cầu kéo đến nhánh `main` với các thay đổi của bạn.
+Bản dựng chỉ hỗ trợ ABI `arm64-v8a`. Thẻ module hiển thị trạng thái monitor và danh sách các module Zygisk đang bật.
 
 ## Hỗ trợ
 
