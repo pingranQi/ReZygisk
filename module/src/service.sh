@@ -2,37 +2,55 @@
 
 set -e
 
-DEBUG=@DEBUG@
-
-MODDIR=${0%/*}
+MODDIR=\${0%/*}
 
 if [ "$ZYGISK_ENABLED" ]; then
   sed -i "s|^description=|description=[❌ Disable Magisk's built-in Zygisk] |" "$MODDIR/module.prop"
-
   exit 0
 fi
 
-cd "$MODDIR"
-
+# Magisk does not run another module's service stage automatically.
 if [ "$(which magisk)" ]; then
-  for file in ../*; do
-    if [ -d "$file" ] && [ -d "$file/zygisk" ] && ! [ -f "$file/disable" ]; then
-      if [ -f "$file/service.sh" ]; then
-        cd "$file"
-        log -p i -t "zygisk-sh" "Manually trigger service.sh for $file"
-
-        # INFO: Don't propagate errexit
-        set +e
-
-        sh "$(realpath ./service.sh)" &
-
-        # INFO: Re-enable errexit
-        set -e
-
-        cd "$MODDIR"
-      fi
-    fi
+  for module_dir in /data/adb/modules/*; do
+    [ -d "$module_dir/zygisk" ] || continue
+    [ -f "$module_dir/disable" ] && continue
+    [ -f "$module_dir/service.sh" ] || continue
+    (cd "$module_dir" && sh "$(realpath ./service.sh)") &
   done
 fi
+
+# Show enabled Zygisk modules on the root manager's module card.
+modules=""
+for module_dir in /data/adb/modules/*; do
+  [ -d "$module_dir/zygisk" ] || continue
+  [ -f "$module_dir/disable" ] && continue
+
+  name=$(sed -n 's/^name=//p' "$module_dir/module.prop" 2>/dev/null | head -n 1)
+  [ -n "$name" ] || name=\${module_dir##*/}
+
+  if [ -n "$modules" ]; then
+    modules="$modules, $name"
+  else
+    modules="$name"
+  fi
+done
+
+[ -n "$modules" ] || modules="none"
+if pidof zygisk-ptrace64 >/dev/null 2>&1; then
+  monitor_status="✅"
+else
+  monitor_status="❌"
+fi
+
+base_prop="$MODDIR/module.prop.bak"
+[ -f "$base_prop" ] || base_prop="$MODDIR/module.prop"
+base_description=$(sed -n 's/^description=//p' "$base_prop" | head -n 1)
+description="[Monitor: $monitor_status, ReZygisk 64-bit: $monitor_status] Modules: $modules · $base_description"
+
+awk -v description="$description" '
+  /^description=/ { print "description=" description; next }
+  { print }
+' "$base_prop" > "$MODDIR/module.prop.tmp"
+mv "$MODDIR/module.prop.tmp" "$MODDIR/module.prop"
 
 exit 0

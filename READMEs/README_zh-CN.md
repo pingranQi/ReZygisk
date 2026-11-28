@@ -49,16 +49,17 @@ Zygisk Next 的开发者是 Android 社区中著名且值得信赖的，然而�
 > [!WARNING]
 > Magisk 用户应禁用内置的 Zygisk，因为它会与 ReZygisk 冲突。这可以通过进入 Magisk 的 `设置` 部分并禁用 `Zygisk` 选项来完成。
 
-### 3. 验证安装
+### 3. 支持范围
 
-重启后，你可以通过检查 root 管理器 `模块` 部分中的模块描述来验证 ReZygisk 是否正常工作。描述应指示必要的守护进程正在运行。例如，如果你的环境同时支持 64 位和 32 位，它应类似于这样：`[Monitor: ✅, ReZygisk 64-bit: ✅, ReZygisk 32-bit: ✅] Standalone implementation of Zygisk.`
+当前构建仅提供 `arm64-v8a`（ARM64）版本，不再打包 32 位或 x86 ABI。WebUI 已从源码、安装包和构建流程中移除。
+
+### 4. 验证安装
+
+重启后，你可以通过检查 root 管理器 `模块` 部分中的模块描述来验证 ReZygisk 是否正常工作。描述应指示必要的守护进程正在运行。模块卡片会显示监视器状态以及当前启用的 Zygisk 模块列表。
 
 ## 翻译
 
-目前有两种不同的方式可以为 ReZygisk 贡献翻译：
-
-*   **README 的翻译**：你可以在 `READMEs` 文件夹中创建一个新文件，遵循命名约定 `README_<语言>.md`，其中 `<语言>` 是语言代码（例如，巴西葡萄牙语为 `README_pt-BR.md`），并向 `main` 分支提交一个包含你更改的 pull request。
-*   **ReZygisk WebUI 的翻译**：你应该首先贡献到我们的 [Crowdin](https://crowdin.com/project/rezygisk)。一旦获得批准，请从那里检索 `.json` 文件，并提交一个包含你更改的 pull request——将 `.json` 文件添加到 `webroot/lang` 文件夹，并将你的署名按字母顺序添加到 `TRANSLATOR.md` 文件中。
+你可以在 `READMEs` 文件夹中创建 README 翻译文件，并向 `main` 分支提交 pull request。
 
 ## 支持
 

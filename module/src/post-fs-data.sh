@@ -45,24 +45,13 @@ create_sys_perm $TMP_PATH
 #         so that it never duplicates the module status in there.
 cp "$MODDIR/module.prop.bak" "$MODDIR/module.prop"
 
-# INFO: Utilize the one with the biggest output, as some devices with Tango have the full list
-#         in ro.product.cpu.abilist but others only have a subset there, and the full list in
-#         ro.system.product.cpu.abilist
-CPU_ABIS_PROP1=$(getprop ro.system.product.cpu.abilist)
-CPU_ABIS_PROP2=$(getprop ro.product.cpu.abilist)
-
-if [ "${#CPU_ABIS_PROP2}" -gt "${#CPU_ABIS_PROP1}" ]; then
-  CPU_ABIS=$CPU_ABIS_PROP2
-else
-  CPU_ABIS=$CPU_ABIS_PROP1
+# This package contains only the arm64 monitor and injector.
+ABI=$(getprop ro.product.cpu.abi)
+if [ "$ABI" != "arm64-v8a" ]; then
+  log -p e -t "ReZygisk" "Unsupported ABI: $ABI (arm64-v8a required)"
+  exit 0
 fi
 
-if [[ "$CPU_ABIS" == *"arm64-v8a"* || "$CPU_ABIS" == *"x86_64"* ]]; then
-  ./bin/zygisk-ptrace64 monitor &
-else
-  # INFO: Device is 32-bit only
-
-  ./bin/zygisk-ptrace32 monitor &
-fi
+./bin/zygisk-ptrace64 monitor &
 
 exit 0
