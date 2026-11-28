@@ -477,11 +477,6 @@ void stringify_root_impl_name(struct root_impl impl, char *restrict output) {
 
       break;
     }
-    case Magisk: {
-      strcpy(output, "Magisk");
-
-      break;
-    }
   }
 }
 
@@ -679,7 +674,7 @@ bool umount_root(struct root_impl impl) {
     return false;
   }
 
-  const char *source_name = "magisk";
+  const char *source_name = "unknown";
   if (impl.impl == KernelSU) source_name = "KSU";
   else if (impl.impl == APatch) source_name = "APatch";
 
@@ -692,7 +687,7 @@ bool umount_root(struct root_impl impl) {
     struct mountinfo mount = mounts.mounts[i];
 
     bool should_unmount = false;
-    if (strcmp(mount.source, source_name) == 0 || (impl.impl == Magisk && strcmp(mount.source, "worker") == 0)) should_unmount = true;
+    if (strcmp(mount.source, source_name) == 0) should_unmount = true;
     if (strncmp(mount.target, "/data/adb/modules", strlen("/data/adb/modules")) == 0) should_unmount = true;
     if (strncmp(mount.root, "/adb/modules/", strlen("/adb/modules/")) == 0) should_unmount = true;
 
