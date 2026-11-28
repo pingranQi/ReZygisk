@@ -188,7 +188,8 @@ bool revert_mode_enabled(void) {
 
 bool revert_root_traces_here(uint32_t root_flags) {
   struct mount_list all = { 0 };
-  if (!mount_list_parse(&all)) {
+  if (!mount_list_parse(&all) || all.len == 0) {
+    LOGE("mountinfo could not be parsed or contained no entries");
     mount_list_free(&all);
     return false;
   }
