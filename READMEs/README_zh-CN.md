@@ -42,7 +42,7 @@ Zygisk Next 的开发者是 Android 社区中著名且值得信赖的，然而�
 
 ### 2. 刷入 zip 文件
 
-选择正确的版本后，你应该使用当前的 root 管理器（如 Magisk 或 KernelSU）刷入它。你可以进入 root 管理器的 `模块` 部分，然后选择你下载的 zip 文件来完成此操作。
+选择正确的版本后，你应该使用当前的 root 管理器（如 Magisk、KernelSU 或 APatch）刷入它。你可以进入 root 管理器的 `模块` 部分，然后选择你下载的 zip 文件来完成此操作。KernelSU LKM late-load 模式同样受支持：模块会通过 `late-load.sh` 入口启动共享初始化流程，并在系统已启动时让 init 重启一次现有的 64 位 Zygote，以便监视器捕获新进程并完成注入。
 
 刷入后，检查安装日志以确保没有错误。如果一切正常，你可以重启设备。
 

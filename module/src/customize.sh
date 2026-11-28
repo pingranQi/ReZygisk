@@ -95,6 +95,9 @@ fi
 ui_print "- Extracting module files"
 extract "$ZIPFILE" 'module.prop'     "$MODPATH"
 extract "$ZIPFILE" 'post-fs-data.sh' "$MODPATH"
+extract "$ZIPFILE" 'late-load.sh'    "$MODPATH"
+extract "$ZIPFILE" 'zygisk-init.sh'  "$MODPATH"
+extract "$ZIPFILE" 'module-card.sh'  "$MODPATH"
 extract "$ZIPFILE" 'service.sh'      "$MODPATH"
 extract "$ZIPFILE" 'uninstall.sh'    "$MODPATH"
 extract "$ZIPFILE" 'rezygisk.sh' "/data/adb/service.d/"
@@ -108,7 +111,7 @@ fi
 
 cp "$MODPATH/module.prop" "$MODPATH/module.prop.bak"
 
-chmod +x "$MODPATH/uninstall.sh" "$MODPATH/post-fs-data.sh" "$MODPATH/late-load.sh" "$MODPATH/zygisk-init.sh" "$MODPATH/module-card.sh"
+chmod 0755 "$MODPATH/uninstall.sh" "$MODPATH/post-fs-data.sh" "$MODPATH/late-load.sh" "$MODPATH/service.sh" "$MODPATH/zygisk-init.sh" "$MODPATH/module-card.sh"
 chmod +x "/data/adb/service.d/rezygisk.sh"
 
 mv "$TMPDIR/sepolicy.rule" "$MODPATH"
