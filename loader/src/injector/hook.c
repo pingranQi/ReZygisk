@@ -1274,23 +1274,25 @@ static void rz_app_specialize_pre(struct zygisk_context *ctx) {
            Knowing this, we update the mns before execution, so that they can still
              make changes to mounts in DenyListed processes without being reverted.
   */
-  bool in_denylist = (ctx->info_flags & PROCESS_ON_DENYLIST) == PROCESS_ON_DENYLIST;
+  bool is_app_zygote = ctx->args.app->is_child_zygote &&
+                       *ctx->args.app->is_child_zygote;
+  bool is_webview_zygote = ctx->process &&
+                           strcmp(ctx->process, "webview_zygote") == 0;
+  bool in_denylist = (ctx->info_flags & PROCESS_ON_DENYLIST) == PROCESS_ON_DENYLIST ||
+                     is_webview_zygote;
+
   if (in_denylist) {
     FLAG_SET(ctx, DO_REVERT_UNMOUNT);
 
     /* App zygotes outlive their specialization path and fork sandboxed
        children later. Keep them on the cached clean namespace. Ordinary app
        processes get a private copy and lose only root-related mounts there. */
-    bool is_app_zygote = ctx->args.app->is_child_zygote &&
-                         *ctx->args.app->is_child_zygote;
-    bool is_webview_zygote = ctx->process &&
-                             strcmp(ctx->process, "webview_zygote") == 0;
-
-    if (is_app_zygote || is_webview_zygote ||
-        !revert_mode_enabled() ||
-        unshare(CLONE_NEWNS) == -1) {
-      if (!is_app_zygote && !is_webview_zygote && revert_mode_enabled())
-        PLOGE("unshare(CLONE_NEWNS) failed; using clean namespace fallback");
+    bool revert_enabled = revert_mode_enabled();
+    if (is_app_zygote || is_webview_zygote || !revert_enabled) {
+      if (!update_mnt_ns(Clean, false))
+        LOGE("Failed to switch denylisted process to clean mount namespace");
+    } else if (unshare(CLONE_NEWNS) == -1) {
+      PLOGE("unshare(CLONE_NEWNS) failed; using clean namespace fallback");
       if (!update_mnt_ns(Clean, false))
         LOGE("Failed to switch denylisted process to clean mount namespace");
     } else if (!revert_root_traces_here(ctx->info_flags)) {
