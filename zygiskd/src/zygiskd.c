@@ -418,7 +418,7 @@ void zygiskd_start(char *restrict argv[]) {
         ssize_t ret = read_uint32_t(client_fd, &uid);
         ASSURE_SIZE_READ("GetProcessFlags", "uid", ret, sizeof(uid), break);
 
-        /* INFO: Only used for Magisk, as it saves process names and not UIDs. */
+        /* APatch uses process names for isolated-service denylist matching. */
         char process[PROCESS_NAME_MAX_LEN];
         ret = read_string(client_fd, process, sizeof(process));
         if (ret == -1) {
@@ -458,11 +458,6 @@ void zygiskd_start(char *restrict argv[]) {
 
             break;
           }
-          case Magisk: {
-            flags |= PROCESS_ROOT_IS_MAGISK;
-
-            break;
-          }
         }
 
         ret = write_uint32_t(client_fd, flags);
@@ -483,11 +478,6 @@ void zygiskd_start(char *restrict argv[]) {
           }
           case APatch: {
             flags |= PROCESS_ROOT_IS_APATCH;
-
-            break;
-          }
-          case Magisk: {
-            flags |= PROCESS_ROOT_IS_MAGISK;
 
             break;
           }

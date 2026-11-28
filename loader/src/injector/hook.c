@@ -1254,15 +1254,7 @@ static void rz_app_specialize_pre(struct zygisk_context *ctx) {
     LOGD("Manager process detected. Notifying that Zygisk has been enabled.");
 
 
-    /* INFO: This environment variable is related to Magisk Zygisk/Manager. It
-               it used by Magisk's Zygisk to communicate to Magisk Manager whether
-               Zygisk is working or not, allowing Zygisk modules to both work properly
-               and for the manager to mark Zygisk as enabled.
-
-             However, to enhance capabilities of root managers, it is also set for
-               any other supported manager, so that, if they wish, they can recognize
-               if Zygisk is enabled.
-    */
+    /* Export the conventional Zygisk-enabled signal for manager compatibility. */
     setenv("ZYGISK_ENABLED", "1", 1);
   }
 
