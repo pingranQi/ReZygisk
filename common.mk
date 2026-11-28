@@ -16,7 +16,8 @@ MIN_MAGISK_VERSION ?= 26402
 MODULE_ID ?= rezygisk
 MODULE_NAME ?= ReZygisk
 
-NDK_VERSION ?= 29.0.13113456
+# Android NDK r30 (latest stable/LTS as of 2026-11).
+NDK_VERSION ?= 30.0.16248370
 ANDROID_HOME ?= $(HOME)/Android/Sdk
 NDK_PATH ?= $(ANDROID_HOME)/ndk/$(NDK_VERSION)
 TOOLCHAIN = $(NDK_PATH)/toolchains/llvm/prebuilt/linux-x86_64
