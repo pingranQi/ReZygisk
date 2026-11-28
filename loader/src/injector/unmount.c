@@ -1,5 +1,6 @@
 #include <errno.h>
 #include <mntent.h>
+#include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -212,7 +213,8 @@ bool revert_root_traces_here(uint32_t root_flags) {
     }
   }
 
-  qsort(traces.items, traces.len, sizeof(*traces.items), compare_mount_id_desc);
+  if (traces.len > 1)
+    qsort(traces.items, traces.len, sizeof(*traces.items), compare_mount_id_desc);
 
   bool complete = true;
   for (size_t i = 0; i < traces.len; i++) {
