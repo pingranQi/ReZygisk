@@ -44,7 +44,7 @@ As for branches, you should always use the `main` branch, unless told otherwise 
 
 After choosing the right build, you should flash it using your current root manager, like Magisk or KernelSU. You can do this by going to the `Modules` section of your root manager and selecting the zip you downloaded.
 
-After flashing, check the installation logs to ensure there are no errors, and if everything is fine, you can reboot your device.
+After flashing, check the installation logs to ensure there are no errors, and if everything is fine, you can reboot your device. KernelSU LKM late-load is also supported through the module's `late-load.sh` entry point. When activated after Android has booted, ReZygisk restarts the existing 64-bit Zygote once so init can respawn it under the monitor.
 
 > [!WARNING]
 > Magisk users should disable built-in Zygisk, as it will conflict with ReZygisk. This can be done by going to the `Settings` section of Magisk and disabling the `Zygisk` option.

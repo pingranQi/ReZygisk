@@ -1,4 +1,8 @@
 #include <stdlib.h>
+#include <stdio.h>
+#include <dirent.h>
+#include <limits.h>
+#include <signal.h>
 #include <string.h>
 #include <time.h>
 #include <errno.h>
@@ -997,12 +1001,86 @@ static bool prepare_environment() {
   return true;
 }
 
+/* A late-loaded KernelSU starts this monitor after the original zygote
+   has already exec'd, so init's TRACEFORK stream cannot see that process.
+   Find only init's direct app_process64 child (not app processes, which also
+   execute app_process64) and kill the oldest match once. init then respawns it
+   and the normal fork/exec injection path handles the fresh zygote. */
+static pid_t monitor_parent_pid(pid_t pid) {
+  char path[64];
+  char line[128];
+  snprintf(path, sizeof(path), "/proc/%d/status", pid);
+
+  FILE *status = fopen(path, "r");
+  if (status == NULL) return -1;
+
+  pid_t parent = -1;
+  while (fgets(line, sizeof(line), status) != NULL) {
+    if (sscanf(line, "PPid:%d", &parent) == 1) break;
+  }
+
+  fclose(status);
+  return parent;
+}
+
+static bool monitor_is_zygote64(pid_t pid) {
+  char path[64];
+  char executable[PATH_MAX];
+  snprintf(path, sizeof(path), "/proc/%d/exe", pid);
+
+  ssize_t length = readlink(path, executable, sizeof(executable) - 1);
+  if (length <= 0) return false;
+  executable[length] = '\0';
+
+  const char *name = strrchr(executable, '/');
+  return name != NULL && strcmp(name + 1, "app_process64") == 0;
+}
+
+static void respawn_stale_zygote64(void) {
+  DIR *proc = opendir("/proc");
+  if (proc == NULL) {
+    PLOGE("opendir /proc for late-load zygote scan");
+    return;
+  }
+
+  pid_t stale_zygote = 0;
+  struct dirent *entry;
+  while ((entry = readdir(proc)) != NULL) {
+    if (entry->d_name[0] < '0' || entry->d_name[0] > '9') continue;
+
+    char *end = NULL;
+    long value = strtol(entry->d_name, &end, 10);
+    if (end == entry->d_name || *end != '\0' || value <= 1 || value > INT_MAX) continue;
+
+    pid_t pid = (pid_t)value;
+    if (monitor_parent_pid(pid) != 1) continue;
+    if (!monitor_is_zygote64(pid)) continue;
+
+    if (stale_zygote == 0 || pid < stale_zygote) stale_zygote = pid;
+  }
+
+  closedir(proc);
+
+  if (stale_zygote == 0) {
+    LOGI("No pre-existing app_process64 child found; normal boot path");
+    return;
+  }
+
+  LOGI("Late-load: restarting pre-existing Zygote (pid %d) so init can respawn it for injection", stale_zygote);
+  if (kill(stale_zygote, SIGKILL) == -1) {
+    PLOGE("failed to restart pre-existing Zygote");
+  }
+}
+
 void init_monitor() {
   LOGI("ReZygisk %s", ZKSU_VERSION);
 
   if (!prepare_environment()) exit(1);
 
   if (!claim_init_tracer()) exit(1);
+
+  /* Seize init first, then respawn any zygote that predates this monitor. */
+  respawn_stale_zygote64();
 
   monitor_events_init();
 

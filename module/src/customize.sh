@@ -99,9 +99,16 @@ extract "$ZIPFILE" 'service.sh'      "$MODPATH"
 extract "$ZIPFILE" 'uninstall.sh'    "$MODPATH"
 extract "$ZIPFILE" 'rezygisk.sh' "/data/adb/service.d/"
 
+# KernelSU executes a module's late-load.sh instead of post-fs-data.sh when
+# its LKM is injected after Android has already booted.
+
+if [ "$KSU" ]; then
+  ui_print "- KernelSU late-load entry enabled"
+fi
+
 cp "$MODPATH/module.prop" "$MODPATH/module.prop.bak"
 
-chmod +x "$MODPATH/uninstall.sh"
+chmod +x "$MODPATH/uninstall.sh" "$MODPATH/post-fs-data.sh" "$MODPATH/late-load.sh" "$MODPATH/zygisk-init.sh" "$MODPATH/module-card.sh"
 chmod +x "/data/adb/service.d/rezygisk.sh"
 
 mv "$TMPDIR/sepolicy.rule" "$MODPATH"
