@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: "recursive"
+          fetch-depth: 0
+
+      - name: Setup NDK_PATH
+        run: echo "NDK_PATH=$ANDROID_NDK_LATEST_HOME" >> "$GITHUB_ENV"
+
+      - name: Build release
+        run: make release -j"$(nproc)"
+
+      - name: Publish release and update manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          zip_file="$(find build/out -maxdepth 1 -type f -name 'VRMZygisk-*-release.zip' -print -quit)"
+          test -n "$zip_file"
+          version="$(unzip -p "$zip_file" module.prop | sed -n 's/^version=//p')"
+          version_code="$(unzip -p "$zip_file" module.prop | sed -n 's/^versionCode=//p')"
+          jq -n \
+            --arg version "$version" \
+            --argjson versionCode "$version_code" \
+            --arg zipUrl "https://github.com/pingranQi/VRMZygisk/releases/latest/download/VRMZygisk-release.zip" \
+            --arg changelog "https://github.com/pingranQi/VRMZygisk/releases/tag/$GITHUB_REF_NAME" \
+            '{version:$version,versionCode:$versionCode,zipUrl:$zipUrl,changelog:$changelog}' > update.json
+          cp "$zip_file" VRMZygisk-release.zip
+          gh release create "$GITHUB_REF_NAME" VRMZygisk-release.zip update.json \
+            --title "$GITHUB_REF_NAME" --generate-notes

@@ -8,8 +8,8 @@
 #include "ptrace_clear.h"
 
 __attribute__((visibility("default")))
-void entry(void *addr, size_t size, int tango_flag) {
-  LOGD("ReZygisk%s library injected, version %s", tango_flag ? " [TANGO]" : "", ZKSU_VERSION);
+void entry(void *addr, size_t size) {
+  LOGD("ReZygisk library injected, version %s", ZKSU_VERSION);
 
   start_addr = addr;
   block_size = size;

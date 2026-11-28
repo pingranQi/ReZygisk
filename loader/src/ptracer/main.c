@@ -6,33 +6,28 @@
 #include "monitor.h"
 
 int main(int argc, char **argv) {
-  printf("The ReZygisk Tracer %s\n\n", ZKSU_VERSION);
+  printf("The VRMZygisk Tracer %s\n\n", ZKSU_VERSION);
 
   if (argc >= 2 && strcmp(argv[1], "monitor") == 0) {
     init_monitor();
 
     return 0;
   } else if (argc >= 3 && strcmp(argv[1], "trace") == 0) {
-      bool is_tango = false;
       bool do_restart = false;
 
       for (int i = 3; i < argc; i++) {
         if (strcmp(argv[i], "--restart") == 0) do_restart = true;
-        else if (strcmp(argv[i], "--tango") == 0) is_tango = true;
       }
 
-      /* INFO: We need to be fast enough to not miss Tango's injection point,
-                 so we just delay for Tango Zygote. */
-      if (do_restart && !is_tango) rezygiskd_zygote_restart();
+      if (do_restart) rezygiskd_zygote_restart();
 
       long pid = strtol(argv[2], 0, 0);
-      if (!trace_zygote(pid, is_tango)) {
+      if (!trace_zygote(pid)) {
         kill(pid, SIGKILL);
 
         return 1;
       }
 
-      if (do_restart && is_tango) rezygiskd_zygote_restart();
 
       return 0;
   } else if (argc >= 2 && strcmp(argv[1], "ctl") == 0) {
@@ -42,18 +37,18 @@ int main(int argc, char **argv) {
     else if (strcmp(argv[2], "stop") == 0) command = STOP;
     else if (strcmp(argv[2], "exit") == 0) command = EXIT;
     else {
-      printf("[ReZygisk]: Usage: %s ctl <start|stop|exit>\n", argv[0]);
+      printf("[VRMZygisk]: Usage: %s ctl <start|stop|exit>\n", argv[0]);
 
       return 1;
     }
 
     if (send_control_command(command) == -1) {
-      printf("[ReZygisk]: Failed to send the command, is the daemon running?\n");
+      printf("[VRMZygisk]: Failed to send the command, is the daemon running?\n");
 
       return 1;
     }
 
-    printf("[ReZygisk]: command sent\n");
+    printf("[VRMZygisk]: command sent\n");
 
     return 0;
   } else if (argc >= 2 && strcmp(argv[1], "version") == 0) {
@@ -82,11 +77,6 @@ int main(int argc, char **argv) {
 
         break;
       }
-      case ROOT_IMPL_MAGISK: {
-        printf("Root implementation: Magisk\n");
-
-        break;
-      }
     }
 
     if (info.modules.modules_count != 0) {
@@ -108,7 +98,7 @@ int main(int argc, char **argv) {
       " - monitor\n"
       " - trace <pid> [--restart]\n"
       " - ctl <start|stop|exit>\n"
-      " - version: Shows the version of ReZygisk.\n"
+      " - version: Shows the version of VRMZygisk.\n"
       " - info: Shows information about the created daemon/injection.\n"
       "\n"
       "<...>: Obligatory\n"

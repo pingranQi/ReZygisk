@@ -4,7 +4,6 @@ SKIPUNZIP=1
 DEBUG=@DEBUG@
 MIN_KSU_VERSION=@MIN_KSU_VERSION@
 MIN_KSUD_VERSION=@MIN_KSUD_VERSION@
-MIN_MAGISK_VERSION=@MIN_MAGISK_VERSION@
 MIN_APATCH_VERSION=@MIN_APATCH_VERSION@
 
 if [ "$BOOTMODE" ] && [ "$KSU" ]; then
@@ -22,37 +21,21 @@ if [ "$BOOTMODE" ] && [ "$KSU" ]; then
     ui_print "! Please update KernelSU Manager to latest version"
     abort    "*********************************************************"
   fi
-  if [ "$(which magisk)" ]; then
+elif [ "$BOOTMODE" ] && [ "$APATCH" ]; then
+  ui_print "- Installing from APatch app"
+  if ! [ "$APATCH_VER_CODE" ] || [ "$APATCH_VER_CODE" -lt "$MIN_APATCH_VERSION" ]; then
     ui_print "*********************************************************"
-    ui_print "! Multiple root implementation is NOT supported!"
-    ui_print "! Please uninstall Magisk before installing ReZygisk"
-    abort    "*********************************************************"
-  fi
-  elif [ "$BOOTMODE" ] && [ "$APATCH" ]; then
-    ui_print "- Installing from APatch app"
-    if ! [ "$APATCH_VER_CODE" ] || [ "$APATCH_VER_CODE" -lt "$MIN_APATCH_VERSION" ]; then
-      ui_print "*********************************************************"
-      ui_print "! APatch version is too old!"
-      ui_print "! Please update APatch to latest version"
-      abort    "*********************************************************"
-    fi
-elif [ "$BOOTMODE" ] && [ "$MAGISK_VER_CODE" ]; then
-  ui_print "- Installing from Magisk app"
-  if [ "$MAGISK_VER_CODE" -lt "$MIN_MAGISK_VERSION" ]; then
-    ui_print "*********************************************************"
-    ui_print "! Magisk version is too old!"
-    ui_print "! Please update Magisk to latest version"
+    ui_print "! APatch version is too old!"
+    ui_print "! Please update APatch to latest version"
     abort    "*********************************************************"
   fi
 else
   ui_print "*********************************************************"
-  ui_print "! Install from recovery is not supported"
-  ui_print "! Please install from KernelSU or Magisk app"
+  ui_print "! Install from KernelSU or APatch app"
   abort    "*********************************************************"
 fi
-
 VERSION=$(grep_prop version "${TMPDIR}/module.prop")
-ui_print "- Installing ReZygisk $VERSION"
+ui_print "- Installing VRMZygisk $VERSION"
 
 # check android
 if [ "$API" -lt 25 ]; then
@@ -98,9 +81,11 @@ extract "$ZIPFILE" 'post-fs-data.sh' "$MODPATH"
 extract "$ZIPFILE" 'late-load.sh'    "$MODPATH"
 extract "$ZIPFILE" 'zygisk-init.sh'  "$MODPATH"
 extract "$ZIPFILE" 'module-card.sh'  "$MODPATH"
-extract "$ZIPFILE" 'service.sh'      "$MODPATH"
 extract "$ZIPFILE" 'uninstall.sh'    "$MODPATH"
-extract "$ZIPFILE" 'rezygisk.sh' "/data/adb/service.d/"
+
+# Remove service hooks installed by older module versions.
+rm -f "$MODPATH/service.sh" "$MODPATH/rezygisk.sh" /data/adb/service.d/rezygisk.sh
+rmdir /data/adb/service.d 2>/dev/null || true
 
 # KernelSU executes a module's late-load.sh instead of post-fs-data.sh when
 # its LKM is injected after Android has already booted.
@@ -111,8 +96,7 @@ fi
 
 cp "$MODPATH/module.prop" "$MODPATH/module.prop.bak"
 
-chmod 0755 "$MODPATH/uninstall.sh" "$MODPATH/post-fs-data.sh" "$MODPATH/late-load.sh" "$MODPATH/service.sh" "$MODPATH/zygisk-init.sh" "$MODPATH/module-card.sh"
-chmod +x "/data/adb/service.d/rezygisk.sh"
+chmod 0755 "$MODPATH/uninstall.sh" "$MODPATH/post-fs-data.sh" "$MODPATH/late-load.sh" "$MODPATH/zygisk-init.sh" "$MODPATH/module-card.sh"
 
 mv "$TMPDIR/sepolicy.rule" "$MODPATH"
 

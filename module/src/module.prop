@@ -1,8 +1,8 @@
 id=${moduleId}
 name=${moduleName}
+author=pingranQi
 version=${versionName}
 versionCode=${versionCode}
-author=The PerformanC Organization
 description=Standalone implementation of Zygisk.
-updateJson=https://raw.githubusercontent.com/ThePedroo/RemoteFiles/refs/heads/main/ReZygisk/update.json
+updateJson=https://github.com/pingranQi/VRMZygisk/releases/latest/download/update.json
 managedFeatures=kernel_umount

@@ -8,7 +8,7 @@
 #include "utils.h"
 
 int main(int argc, char *argv[]) {
-  LOGI("Welcome to ReZygiskd%s", LP_SELECT("32", "64"));
+  LOGI("Welcome to VRMZygiskd%s", LP_SELECT("32", "64"));
 
   if (argc > 1) {
     if (strcmp(argv[1], "companion") == 0) {

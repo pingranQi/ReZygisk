@@ -11,10 +11,9 @@ COMMIT_HASH ?= $(shell git -C "$(ROOT_DIR)" rev-parse --verify --short HEAD 2>/d
 MIN_APATCH_VERSION ?= 10655
 MIN_KSU_VERSION ?= 10940
 MIN_KSUD_VERSION ?= 11425
-MIN_MAGISK_VERSION ?= 26402
 
 MODULE_ID ?= rezygisk
-MODULE_NAME ?= ReZygisk
+MODULE_NAME ?= VRMZygisk
 
 # Android NDK r30 (latest stable/LTS as of 2026-11).
 NDK_VERSION ?= 30.0.16248370

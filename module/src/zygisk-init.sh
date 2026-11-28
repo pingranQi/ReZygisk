@@ -6,10 +6,6 @@ MODDIR=${MODDIR:-${0%/*}}
 TMP_PATH=/data/adb/rezygisk
 export TMP_PATH
 
-if [ "$ZYGISK_ENABLED" ]; then
-  return 0
-fi
-
 cd "$MODDIR"
 
 ABI=$(getprop ro.product.cpu.abi)

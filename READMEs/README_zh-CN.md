@@ -1,79 +1,44 @@
-# ReZygisk
+# VRMZygisk
 
-[English](../README.md)
+VRMZygisk 是基于 ReZygisk 的独立 Zygisk 实现，仅支持 ARM64。
 
-ReZygisk 是 Zygisk Next 的一个分支，是 Zygisk 的独立实现，为 KernelSU、APatch 和 Magisk 提供 Zygisk API 支持。
+## 支持范围
 
-代码库已经完全重写为 C 语言，这不仅带来了更干净、更易读的代码库，还让生成的二进制文件更轻量、更快速。同时还引入了自定义链接器，在正常情况下完全不使用系统链接器，从而让 ReZygisk 能够应对未来的检测，并规避所有基于链接器的检测。
+- KernelSU（包括 LKM late-load）
+- APatch（标准启动阶段）
+- Android 7.1 及以上的 ARM64 设备
 
-## 为什么？
+不支持 Magisk。模块 ID 继续使用 `rezygisk`，以保留现有模块数据和原地升级路径。
 
-Zygisk Next 的最新版本不是开源的，其代码完全由其开发者保留。这不仅限制了我们为项目做出贡献的能力，也使得代码审计变得不可能，这是一个重大的安全隐患，因为 Zygisk Next 是一个以超级用户 (root) 权限运行的模块，可以访问整个系统。
+## 功能
 
-Zygisk Next 的开发者是 Android 社区中著名且值得信赖的，然而，这并不意味着代码没有恶意或漏洞。我们 (PerformanC) 理解他们保持代码闭源的原因，但我们持相反的观点。
+- Zygisk API 实现与模块注入
+- 仅注入 64 位 Zygote；不注入次要的 32 位 Zygote 和 Tango translator
+- 通过模块自身的 `late-load.sh` 支持 KernelSU LKM late-load
+- 模块卡片显示 Monitor 状态和已启用的 Zygisk 模块列表
+- 不包含 WebUI
 
-## 优势
-
-- **自由开源 (永远)**
-
-## 依赖项
-
-| 工具              | 描述                               |
-|-------------------|------------------------------------|
-| `Android NDK`     | Android 原生开发工具包             |
-
-### C 依赖项
-
-| 依赖项        | 描述                                |
-|---------------|-------------------------------------|
-| `PLTI`       | Android 的简单 PLT Hook 库          |
-| `CSOLoader`   | 最先进（SOTA）的 Linux 自定义链接器 |
+Late-load 仅适用于 KernelSU。KernelSU 在 Android 启动完成后注入时，VRMZygisk 会重启一次现有的 64 位 Zygote，由 init 重新拉起并交给 monitor 注入。这会导致 system_server 和 Android Framework 重启。
 
 ## 安装
 
-### 1. 选择正确的 zip 文件
+1. 从 [GitHub Releases](https://github.com/pingranQi/VRMZygisk/releases) 下载 Release ZIP。
+2. 在 KernelSU 或 APatch 管理器中刷入。
+3. 标准安装后重启设备。KernelSU LKM late-load 模式下，KernelSU 注入后会自动调用模块入口。
 
-选择正确的构建版本/zip 文件很重要，因为它将决定 ReZygisk 的隐藏性和稳定性。不过，这并不是一项艰巨的任务：
+模块更新检查使用本项目自己的 Release 更新清单。
 
--   `release` 版本应该是大多数情况下的选择，它移除了应用层级的日志记录，并提供更优化的二进制文件。
--   `debug` 版本则相反，它包含大量日志记录且没有优化。因此，**你应仅在调试目的**以及**为创建 Issue 而获取日志时**使用它。
+## 构建
 
-至于分支，你应始终使用 `main` 分支，除非开发者另有说明，或者你想测试即将推出的功能并知晓其中涉及的风险。
+安装 Android NDK r30 并设置 `NDK_PATH`：
 
-### 2. 刷入 zip 文件
+```sh
+make all -j"$(nproc)"       # Debug 和 Release
+make release -j"$(nproc)"   # 仅 Release
+```
 
-选择正确的版本后，你应该使用当前的 root 管理器（如 Magisk、KernelSU 或 APatch）刷入它。你可以进入 root 管理器的 `模块` 部分，然后选择你下载的 zip 文件来完成此操作。KernelSU LKM late-load 模式同样受支持：模块会通过 `late-load.sh` 入口启动共享初始化流程，并在系统已启动时让 init 重启一次现有的 64 位 Zygote，以便监视器捕获新进程并完成注入。
-
-刷入后，检查安装日志以确保没有错误。如果一切正常，你可以重启设备。
-
-> [!WARNING]
-> Magisk 用户应禁用内置的 Zygisk，因为它会与 ReZygisk 冲突。这可以通过进入 Magisk 的 `设置` 部分并禁用 `Zygisk` 选项来完成。
-
-### 3. 支持范围
-
-当前构建仅提供 `arm64-v8a`（ARM64）版本，不再打包其他 ABI。WebUI 已从源码、安装包和构建流程中彻底移除。
-
-### 4. 验证安装
-
-重启后，你可以通过检查 root 管理器 `模块` 部分中的模块描述来验证 ReZygisk 是否正常工作。描述应指示必要的守护进程正在运行。模块卡片会显示监视器状态以及当前启用的 Zygisk 模块列表。
-
-## 翻译
-
-你可以在 `READMEs` 文件夹中创建 README 翻译文件，并向 `main` 分支提交 pull request。
-
-## 支持
-
-对于任何与 ReZygisk 或其他 PerformanC 项目相关的问题，欢迎随时加入以下任一频道：
-
-*   Discord 频道: [PerformanC](https://discord.gg/uPveNfTuCJ)
-*   ReZygisk Telegram 频道: [@rezygisk](https://t.me/rezygisk)
-*   PerformanC Telegram 频道: [@performancorg](https://t.me/performancorg)
-*   PerformanC Signal 群组: [@performanc](https://signal.group/#CjQKID3SS8N5y4lXj3VjjGxVJnzNsTIuaYZjj3i8UhipAS0gEhAedxPjT5WjbOs6FUuXptcT)
-
-## 贡献
-
-向 ReZygisk 做贡献必须遵循 PerformanC 的 [贡献指南](https://github.com/PerformanC/contributing)。遵守其安全策略、行为准则和语法标准。
+构建目标仅为 `arm64-v8a`。
 
 ## 许可证
 
-ReZygisk 采用 [AGPL 3.0](../LICENSE) 授权。你可以在 [开源倡议组织 (Open Source Initiative)](https://opensource.org/licenses/AGPL-3.0) 上了解更多相关信息。
+AGPL-3.0，详见 [LICENSE](LICENSE)。
