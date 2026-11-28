@@ -65,14 +65,14 @@ static bool path_at_or_under(const char *path, const char *prefix) {
   return strncmp(path, prefix, len) == 0 && (path[len] == '\0' || path[len] == '/');
 }
 
-static bool parse_mount_line(char *line, struct mount_entry *out) {
+static int parse_mount_line(char *line, struct mount_entry *out) {
   char *separator = strstr(line, " - ");
-  if (separator == NULL) return false;
+  if (separator == NULL) return 0;
   *separator = '\0';
 
   char *save = NULL;
   char *field = strtok_r(line, " ", &save);
-  if (field == NULL) return false;
+  if (field == NULL) return 0;
 
   char *end = NULL;
   unsigned long id = strtoul(field, &end, 10);
@@ -81,17 +81,17 @@ static bool parse_mount_line(char *line, struct mount_entry *out) {
   /* mountinfo fields: id parent major:minor root mountpoint ... */
   for (int i = 1; i < 4; i++) {
     field = strtok_r(NULL, " ", &save);
-    if (field == NULL) return false;
+    if (field == NULL) return 0;
   }
   char *root = field;
 
   char *target = strtok_r(NULL, " ", &save);
-  if (target == NULL) return false;
+  if (target == NULL) return 0;
 
   save = NULL;
   (void)strtok_r(separator + 3, " ", &save); /* filesystem type */
   char *source = strtok_r(NULL, " ", &save);
-  if (source == NULL) return false;
+  if (source == NULL) return 0;
 
   out->id = (unsigned int)id;
   out->root = strdup(root);
@@ -103,10 +103,10 @@ static bool parse_mount_line(char *line, struct mount_entry *out) {
     free(out->source);
     memset(out, 0, sizeof(*out));
     PLOGE("copy mountinfo entry");
-    return false;
+    return -1;
   }
 
-  return true;
+  return 1;
 }
 
 static bool mount_list_parse(struct mount_list *out) {
@@ -122,7 +122,12 @@ static bool mount_list_parse(struct mount_list *out) {
 
   while (getline(&line, &capacity, file) > 0) {
     struct mount_entry entry = { 0 };
-    if (!parse_mount_line(line, &entry)) continue;
+    int parsed = parse_mount_line(line, &entry);
+    if (parsed == 0) continue;
+    if (parsed < 0) {
+      ok = false;
+      break;
+    }
 
     if (!mount_list_reserve(out, out->len + 1)) {
       free(entry.root);
@@ -133,6 +138,11 @@ static bool mount_list_parse(struct mount_list *out) {
     }
 
     out->items[out->len++] = entry;
+  }
+
+  if (ferror(file)) {
+    PLOGE("read /proc/self/mountinfo");
+    ok = false;
   }
 
   free(line);
