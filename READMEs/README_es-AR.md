@@ -51,7 +51,6 @@ Después de flashear, revisá los logs de instalación para asegurarte de que no
 
 ### 3. Verificá la instalación
 
-Después de reiniciar, podés verificar si ReZygisk está funcionando bien revisando la descripción del módulo en la sección de `Módulos` de tu gestor de root. La descripción debería indicar que los demonios (daemons) necesarios están corriendo. Por ejemplo, si tu entorno soporta tanto 64-bit como 32-bit, debería verse parecido a esto: `[Monitor: ✅, ReZygisk 64-bit: ✅, ReZygisk 32-bit: ✅] Standalone implementation of Zygisk.`
 
 ## Traducción
 

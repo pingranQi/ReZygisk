@@ -2,7 +2,7 @@
 
 set -e
 
-MODDIR=\${0%/*}
+MODDIR=${0%/*}
 
 if [ "$ZYGISK_ENABLED" ]; then
   sed -i "s|^description=|description=[❌ Disable Magisk's built-in Zygisk] |" "$MODDIR/module.prop"
@@ -26,7 +26,7 @@ for module_dir in /data/adb/modules/*; do
   [ -f "$module_dir/disable" ] && continue
 
   name=$(sed -n 's/^name=//p' "$module_dir/module.prop" 2>/dev/null | head -n 1)
-  [ -n "$name" ] || name=\${module_dir##*/}
+  [ -n "$name" ] || name=${module_dir##*/}
 
   if [ -n "$modules" ]; then
     modules="$modules, $name"

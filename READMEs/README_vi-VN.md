@@ -51,13 +51,11 @@ Sau khi flash, kiểm tra lại nhật ký lỗi để chắc chắn rằng khô
 
 ### 3. Verify the installation
 
-Sau khi khởi động lại, bạn có thể xác minh ReZygisk có hoạt động bình thường không bằng cách kiểm tra mô tả module trong phần `Modules` của trình quản lý gốc. Mô tả sẽ chỉ ra rằng các daemon cần thiết đang chạy. Ví dụ, nếu môi trường của bạn hỗ trợ cả cấu trúctrúc 64-bit và 32-bit, nó sẽ trông giống như thế này: `[Monitor: ✅, ReZygisk 64-bit: ✅, ReZygisk 32-bit: ✅] Standalone implementation of Zygisk.`
 
 
 Hiện tại có hai cách khác nhau để đóng góp bản dịch cho ReZygisk:
 
 - Đối với bản dịch của README, bạn có thể tạo một tệp mới trong thư mục `READMEs`, theo quy ước đặt tên `README_<language>.md`, trong đó `<language>` là mã ngôn ngữ (ví dụ: `README_pt-BR.md` cho tiếng Bồ Đào Nha Brazil) và mở yêu cầu kéo đến nhánh `main` với các thay đổi của bạn.
-- Đối với bản dịch của ReZygisk WebUI, trước tiên bạn phải đóng góp cho [Crowdin](https://crowdin.com/project/rezygisk) của chúng tôi. Sau khi được chấp thuận, hãy lấy tệp `.json` từ đó và mở yêu cầu kéo với các thay đổi của bạn -- thêm tệp `.json` vào thư mục `webroot/lang` và ghi công của bạn vào tệp `TRANSLATOR.md`, theo thứ tự bảng chữ cái.
 
 ## Hỗ trợ
 

@@ -107,6 +107,7 @@ chmod +x "/data/adb/service.d/rezygisk.sh"
 mv "$TMPDIR/sepolicy.rule" "$MODPATH"
 
 rm -rf "$MODPATH/bin" "$MODPATH/lib" "$MODPATH/lib64" "$MODPATH/webroot"
+rm -rf "$MODPATH/bin" "$MODPATH/lib" "$MODPATH/lib64" "$MODPATH/webroot"
 mkdir "$MODPATH/bin"
 mkdir "$MODPATH/lib64"
 

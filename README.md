@@ -55,7 +55,7 @@ After rebooting, you can verify if ReZygisk is working properly by checking the 
 
 ## Translation
 
-There are currently two different ways to contribute translations for ReZygisk:
+There are currently one way to contribute translations for ReZygisk:
 
 - For translations of the README, you can create a new file in the `READMEs` folder, following the naming convention of `README_<language>.md`, where `<language>` is the language code (e.g., `README_pt-BR.md` for Brazilian Portuguese), and open a pull request to the `main` branch with your changes.
 

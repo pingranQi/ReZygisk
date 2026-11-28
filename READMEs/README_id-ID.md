@@ -51,8 +51,6 @@ Setelah mem-flash, periksa log instalasi untuk memastikan tidak ada kesalahan, d
 
 ### 3. Verifikasi Instalasi
 
-Setelah reboot, Anda dapat memverifikasi apakah ReZygisk bekerja dengan baik dengan memeriksa deskripsi modul di bagian Modules pada pengelola root Anda. Deskripsi tersebut harus menunjukkan bahwa daemon yang diperlukan sedang berjalan. Misalnya, jika lingkungan Anda mendukung 64-bit dan 32-bit, itu akan terlihat seperti ini:
-`[Monitor: ✅, ReZygisk 64-bit: ✅, ReZygisk 32-bit: ✅] Standalone implementation of Zygisk.`
 
 ## Terjemahan
 
