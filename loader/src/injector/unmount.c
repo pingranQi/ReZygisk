@@ -76,7 +76,7 @@ static int parse_mount_line(char *line, struct mount_entry *out) {
 
   char *end = NULL;
   unsigned long id = strtoul(field, &end, 10);
-  if (end == field || *end != '\0' || id > UINT_MAX) return false;
+  if (end == field || *end != '\0' || id > UINT_MAX) return 0;
 
   /* mountinfo fields: id parent major:minor root mountpoint ... */
   for (int i = 1; i < 4; i++) {
