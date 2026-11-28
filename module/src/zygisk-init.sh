@@ -50,14 +50,16 @@ if [ "$have_monitor" = "0" ]; then
   cp "$MODDIR/module.prop.bak" "$MODDIR/module.prop"
 fi
 
+# The monitor owns module.prop after startup. Never regenerate the card while
+# an existing monitor is active, or its live status would be overwritten.
+if [ "$have_monitor" = "1" ]; then
+  log -p i -t "VRMZygisk" "Monitor already owns init; preserving the active session"
+  return 0
+fi
+
 # Capture the module list and mode before monitor startup: monitor.c snapshots
 # module.prop once and preserves this description while updating injection state.
 . "$MODDIR/module-card.sh"
 update_module_card
-
-if [ "$have_monitor" = "1" ]; then
-  log -p i -t "ReZygisk" "Monitor already owns init; preserving the active session"
-  return 0
-fi
 
 "$MODDIR/bin/zygisk-ptrace64" monitor &
