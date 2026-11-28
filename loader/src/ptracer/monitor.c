@@ -754,6 +754,7 @@ void sigchld_listener_stop() {
 }
 
 static char pre_section[1024];
+static char base_description[1024];
 static char post_section[1024];
 
 #define WRITE_STATUS_ABI(suffix)                                                     \
@@ -784,7 +785,7 @@ static bool update_status(const char *message) {
   }
 
   if (message) {
-    fprintf(prop, "%s[%s] %s", pre_section, message, post_section);
+    fprintf(prop, "%s%s · [%s]%s", pre_section, base_description, message, post_section);
     fclose(prop);
     return true;
   }
@@ -797,7 +798,7 @@ static bool update_status(const char *message) {
     case EXITING: strcat(status_text, "❌"); break;
   }
   WRITE_STATUS_ABI(64)
-  fprintf(prop, "%s[%s] %s", pre_section, status_text, post_section);
+  fprintf(prop, "%s%s · %s%s", pre_section, base_description, status_text, post_section);
   fclose(prop);
 
   if (environment_information64.root_impl) {
@@ -843,8 +844,10 @@ static bool prepare_environment() {
   char line[1024];
   while (fgets(line, sizeof(line), orig_prop) != NULL) {
     if (strncmp(line, "description=", strlen("description=")) == 0) {
+      const char *description = line + strlen("description=");
+      size_t description_len = strcspn(description, "\r\n");
+      snprintf(base_description, sizeof(base_description), "%.*s", (int)description_len, description);
       strcat(pre_section, "description=");
-      strcat(post_section, line + strlen("description="));
       after_description = true;
 
       continue;
