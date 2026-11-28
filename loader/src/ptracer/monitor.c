@@ -777,6 +777,21 @@ static char post_section[1024];
     }                                                                                \
   }
 
+static void write_module_description(FILE *prop, const char *status_text) {
+  fprintf(prop, "%s[%s]·[models:", pre_section, status_text);
+
+  if (environment_information64.modules && environment_information64.modules_len > 0) {
+    for (uint32_t i = 0; i < environment_information64.modules_len; i++) {
+      if (i > 0) fputc(',', prop);
+      fputs(environment_information64.modules[i], prop);
+    }
+  } else {
+    fputs("none", prop);
+  }
+
+  fprintf(prop, "]%s\\n%s", base_description, post_section);
+}
+
 static bool update_status(const char *message) {
   FILE *prop = fopen("/data/adb/modules/rezygisk/module.prop", "w");
   if (prop == NULL) {
@@ -784,22 +799,23 @@ static bool update_status(const char *message) {
     return false;
   }
 
+  char status_text[256] = "Monitor: ";
   if (message) {
-    fprintf(prop, "%s%s · [%s]\n%s", pre_section, base_description, message, post_section);
-    fclose(prop);
-    return true;
+    strncat(status_text, message, sizeof(status_text) - strlen(status_text) - 1);
+  } else {
+    switch (tracing_state) {
+      case TRACING: strcat(status_text, "✅"); break;
+      case STOPPING: [[fallthrough]];
+      case STOPPED: strcat(status_text, "⛔"); break;
+      case EXITING: strcat(status_text, "❌"); break;
+    }
+    WRITE_STATUS_ABI(64)
   }
 
-  char status_text[256] = "Monitor: ";
-  switch (tracing_state) {
-    case TRACING: strcat(status_text, "✅"); break;
-    case STOPPING: [[fallthrough]];
-    case STOPPED: strcat(status_text, "⛔"); break;
-    case EXITING: strcat(status_text, "❌"); break;
-  }
-  WRITE_STATUS_ABI(64)
-  fprintf(prop, "%s%s · %s\n%s", pre_section, base_description, status_text, post_section);
+  write_module_description(prop, status_text);
   fclose(prop);
+
+  if (message) return true;
 
   if (environment_information64.root_impl) {
     FILE *json = fopen("/data/adb/rezygisk/state.json", "w");
